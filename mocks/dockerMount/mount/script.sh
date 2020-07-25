@@ -1,0 +1,1 @@
+echo "script.sh exectued"

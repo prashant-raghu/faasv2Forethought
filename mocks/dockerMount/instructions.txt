@@ -1,0 +1,7 @@
+1) docker image build -t mounttest:v1 .
+2) docker run --name uuidIdentifier \
+     --mount type=bind,source="$(pwd)"/mount,target=/app mounttest:v1
+
+3) dockerfile => setup os and node then execute /app/script.sh which is bind monted at runtime
+
+4) create temp folder with script.sh and do chmod +x ./script.sh
