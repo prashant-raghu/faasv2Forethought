@@ -1,0 +1,193 @@
+<html>
+
+<head>
+    <title>Order Checkout</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <link rel="shortcut icon" href="https://goSellJSLib.b-cdn.net/v1.4.1/imgs/tap-favicon.ico" />
+    <link href="https://goSellJSLib.b-cdn.net/v1.4.1/css/gosell.css" rel="stylesheet" />
+    <style>
+        .loader {
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+            border: 3px solid #ddd;
+            border-top: 3px solid #42a5f5;
+            border-radius: 50%;
+            height: 75px;
+            width: 75px;
+        }
+
+        @-webkit-keyframes spin {
+            to {
+                border-top-color: #ec407a;
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                border-top-color: #ec407a;
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+        /* general styling */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background-color: #f1f2f3;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+        }
+
+        .container {
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="text/javascript" src="https://goSellJSLib.b-cdn.net/v1.4.1/js/gosell.js"></script>
+
+    <div id="root"></div>
+    <!-- <button id="openLightBox" onclick="goSell.openLightBox()">open goSell LightBox</button> -->
+    <button style="visibility: hidden" id="openPage" onclick="goSell.openPaymentPage()">open goSell Page</button>
+    <div class="container">
+        <div class="loader"></div>
+      </div>
+    <script>
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split('&');
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split('=');
+                if (decodeURIComponent(pair[0]) == variable) {
+                    return decodeURIComponent(pair[1]);
+                }
+            }
+            console.log('Query variable %s not found', variable);
+        }
+        console.log(getQueryVariable('orderId'));
+        var orderId = getQueryVariable('orderId');
+        const data = { OrderId: orderId };
+        let server = "http://204.48.26.50:9000/"
+        fetch(server + 'product/order/getCheckout', {
+            method: 'POST', // or 'PUT'
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                let result = data.data;
+                goSell.config({
+                    containerID: "root",
+                    gateway: {
+                        publicKey: "pk_test_Vlk842B1EA7tDN5QbrfGjYzh",
+                        language: "en",
+                        contactInfo: true,
+                        supportedCurrencies: "all",
+                        supportedPaymentMethods: "all",
+                        saveCardOption: false,
+                        customerCards: true,
+                        notifications: 'standard',
+                        callback: (response) => {
+                            console.log('response', response);
+                        },
+                        onClose: () => {
+                            console.log("onClose Event");
+                        },
+                        backgroundImg: {
+                            url: null,
+                            opacity: '0.5'
+                        },
+                        labels: {
+                            cardNumber: "Card Number",
+                            expirationDate: "MM/YY",
+                            cvv: "CVV",
+                            cardHolder: "Name on Card",
+                            actionButton: "Pay"
+                        },
+                        style: {
+                            base: {
+                                color: '#535353',
+                                lineHeight: '18px',
+                                fontFamily: 'sans-serif',
+                                fontSmoothing: 'antialiased',
+                                fontSize: '16px',
+                                '::placeholder': {
+                                    color: 'rgba(0, 0, 0, 0.26)',
+                                    fontSize: '15px'
+                                }
+                            },
+                            invalid: {
+                                color: 'red',
+                                iconColor: '#fa755a'
+                            }
+                        }
+                    },
+                    customer: {
+                        id: null,
+                        first_name: result.User.firstName || ' ',
+                        middle_name: ' ',
+                        last_name: result.User.lastName || ' ',
+                        email: result.User.email || ' ',
+                        phone: {
+                            country_code: "965",
+                            number: result.User.mobileNumber || ' '
+                        }
+                    },
+                    order: {
+                        amount: +result.totalAmount,
+                        currency: "KWD",
+                        shipping: null,
+                        taxes: null
+                    },
+                    transaction: {
+                        mode: 'charge',
+                        charge: {
+                            saveCard: false,
+                            threeDSecure: true,
+                            reference: {
+                                transaction: Math.random().toString().slice(2, 7),
+                                order: orderId
+                            },
+                            metadata: {
+                                OrderId: orderId
+                            },
+                            receipt: {
+                                email: false,
+                                sms: false
+                            },
+                            redirect: server + "payment/redirect.html",
+                            post: server + "product/order/disclose",
+                        }
+                    }
+                });
+                setInterval(()=>{
+                    document.getElementById("openPage").click();
+                    console.log('pressed')
+                },2000)
+                // var hangoutButton = document.getElementById("openPage").click();
+                // console.log(hangoutButton);
+                // hangoutButton.click(); 
+                // goSell.openPaymentPage();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+
+</html>

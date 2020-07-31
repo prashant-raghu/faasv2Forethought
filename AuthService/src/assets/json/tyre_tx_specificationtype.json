@@ -1,0 +1,14 @@
+[
+  {
+    "spec_type": "ALTERNATIVE",
+    "description": "замена"
+  },
+  {
+    "spec_type": "DEFAULT",
+    "description": "заводской"
+  },
+  {
+    "spec_type": "TUNING",
+    "description": "тюнинг"
+  }
+]
