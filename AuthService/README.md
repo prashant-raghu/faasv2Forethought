@@ -27,6 +27,3 @@ Run tests
 ```bash
 npm run test
 ```
-
-## License
-Private repository
