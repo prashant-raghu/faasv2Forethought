@@ -34,13 +34,6 @@ app.use(express.static(path.join(__dirname, 'assets')));
 //routes
 const router = require('./modules/app.router');
 app.use('/', router);
-app.use('/payment/redirect', express.static('src/public/payment/redirect.html'));
-app.use('/gSignInButton', express.static('src/public/gSignin.html'))
-app.use('/payment', express.static('src/public/payment'));
-app.use('/test', (req, res) => {
-    console.log(req.body);
-    res.status(200).send('works');
-})
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     next(createError(404));

@@ -21,31 +21,7 @@ const opts = {
         secretOrKey: Config.auth.jwtSecret,
         passReqToCallback: true
     },
-
-    google: {
-        clientID: ConfigPassport.google.clientId,
-        clientSecret: ConfigPassport.google.clientSecret,
-        callbackURL: ConfigPassport.google.callbackURL,
-    },
-
-    facebook: {
-        clientID: ConfigPassport.facebook.clientID,
-        clientSecret: ConfigPassport.facebook.clientSecret,
-        callbackURL: ConfigPassport.facebook.callbackURL,
-        fbGraphVersion: 'v7.0'
-    },
-
-    apple: {
-        clientID: ConfigPassport.apple.clientID,
-        teamID: ConfigPassport.apple.teamID,
-        callbackURL: ConfigPassport.google.callbackURL,
-        keyID: ConfigPassport.google.keyID,
-        privateKeyLocation: ConfigPassport.google.privateKeyLocation,
-        passReqToCallback: ConfigPassport.google.passReqToCallback,
-    },
 };
-
-const client = new OAuth2Client(ConfigPassport.google.clientId)
 
 module.exports = () => {
 
@@ -66,57 +42,4 @@ module.exports = () => {
             })
             .catch(e => done(e, false));
     }));
-
-    passport.use(new AppleStrategy(opts.apple, (req, accessToken, refreshToken, decodedIdToken, profile, cb) => {
-        cb(null, decodedIdToken);
-    }))
-
-    passport.use(new FacebookStrategy(opts.facebook, (accessToken, refreshToken, profile, cb) => {
-        console.log(profile)
-        return cb(null, profile);
-
-    }))
-
-    passport.use('custom-google', new CustomGoogleStrategy(
-        async (req, done) => {
-            const token = req.body.token
-            const password = Date.now().toString()
-            try {
-                const ticket = await client.verifyIdToken({
-                    idToken: token,
-                    audience: ConfigPassport.google.clientId
-                })
-                const payload = ticket.getPayload()
-                // console.log(payload)
-                const emailId = payload.email
-
-                User.findOrCreate({
-                    where: {
-                        email: emailId
-                    },
-                    defaults: {
-                        userName: payload.given_name,
-                        firstName: payload.given_name,
-                        lastName: payload.family_name,
-                        password: bcrypt.hashSync(password, 0)
-                        //password can't be null
-                    }
-                })
-                    .then(u => {
-                        if (u) {
-                            req.isUser = true;
-                            done(null, u);
-                        } else done(null, false);
-                        return null;
-                    })
-                    .catch(e => done(e, false));
-
-
-            } catch (error) {
-                console.log(error)
-                done(error, false)
-            }
-        }
-    ))
-
 }

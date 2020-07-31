@@ -2,7 +2,6 @@ const sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
 
 const Config = require('../../environments/index');
-const Mailer = require('../../services/mailer.service');
 const Auth = require('../../services/auth.service');
 const User = require('./user.model');
 const uuid = require('uuid').v4;
