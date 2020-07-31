@@ -29,5 +29,8 @@ module.exports = {
     },
     autoVerifyEmail: true,
     passport: {
+    },
+    kafka:{
+        brokers: ['192.168.0.109:9092']
     }
 };

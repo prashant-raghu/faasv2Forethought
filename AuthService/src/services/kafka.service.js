@@ -2,9 +2,10 @@
 
 const { Kafka } = require('kafkajs')
 const { v4: uuidv4 } = require('uuid');
+const config = require('../environments/index');
 const kafka = new Kafka({
     clientId: 'faasv2_auth',
-    brokers: ['0.0.0.0:9092'],
+    brokers: config.kafka.brokers,
 })
 const EventEmitter = require('events');
 
@@ -39,7 +40,7 @@ const myEmitter = new MyEmitter();
 //         ],
 //     })
 // });
-function init(){
+function init() {
     producer.connect()
         .then(r => {
 
@@ -63,4 +64,6 @@ function init(){
             console.log(err)
         })
 }
+
 exports.Consumer = myEmitter;
+exports.init = init;
